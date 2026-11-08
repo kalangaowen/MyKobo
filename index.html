@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KoboCollect Hub - Data Collection & Review</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Font: Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Header / Navigation Bar -->
+  <header class="bg-slate-900 text-white sticky top-0 z-40 shadow-lg border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        
+        <!-- Logo & Branding -->
+        <div class="flex items-center space-x-3 cursor-pointer" onclick="switchView('form')">
+          <div class="bg-teal-500 p-2 rounded-xl text-slate-950 font-black text-xl tracking-wider shadow-inner flex items-center justify-center w-10 h-10">
+            K
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 className="font-bold text-lg tracking-wide text-white">KoboCollect <span class="text-teal-400 font-normal">Hub</span></h1>
+              <span class="text-[10px] bg-teal-500/20 text-teal-300 font-semibold px-2 py-0.5 rounded border border-teal-500/30">v2.4</span>
+            </div>
+            <p class="text-xs text-slate-400 hidden sm:block">Field Data Collection & Verification System</p>
+          </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="flex items-center space-x-2 bg-slate-800/80 p-1.5 rounded-xl border border-slate-700/60">
+          <button 
+            id="navBtnForm" 
+            onclick="switchView('form')" 
+            class="flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all bg-teal-600 text-white shadow-sm"
+          >
+            <i data-lucide="clipboard-list" class="w-4 h-4"></i>
+            <span class="hidden sm:inline">Data Collection</span> Form
+          </button>
+          
+          <button 
+            id="navBtnDashboard" 
+            onclick="switchView('dashboard')" 
+            class="flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-300 hover:text-white hover:bg-slate-700/50"
+          >
+            <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+            <span class="hidden sm:inline">Review</span> Dashboard
+            <span id="navPendingBadge" class="ml-1 bg-amber-500 text-slate-950 text-[11px] font-black px-1.5 py-0.5 rounded-full">2</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Body -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+
+    <!-- ========================================================= -->
+    <!-- VIEW 1: DATA COLLECTION FORM                              -->
+    <!-- ========================================================= -->
+    <section id="formView" class="max-w-3xl mx-auto space-y-6">
+      
+      <!-- Survey Title Header Card -->
+      <div class="bg-white border-t-4 border-t-teal-600 rounded-2xl shadow-sm border border-slate-200 p-6">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+          <span class="text-xs font-bold uppercase tracking-wider text-teal-700 bg-teal-50 px-2.5 py-1 rounded-md flex items-center gap-1.5">
+            <i data-lucide="shield-check" class="w-3.5 h-3.5 text-teal-600"></i> Active Field Survey
+          </span>
+          <span class="text-xs font-mono text-slate-400">FORM-REF: WASH-2026-V1</span>
+        </div>
+        <h2 class="text-2xl font-black text-slate-900 mt-4">Water & Public Health Community Assessment</h2>
+        <p class="text-sm text-slate-600 mt-1">
+          Household-level survey to evaluate clean water accessibility, facility conditions, and community health requirements.
+        </p>
+      </div>
+
+      <!-- Main Form -->
+      <form id="koboSurveyForm" onsubmit="handleFormSubmit(event)" class="space-y-6">
+        
+        <!-- SECTION 1: METADATA & ENUMERATOR -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
+          <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wide border-b border-slate-100 pb-2.5 flex items-center gap-2">
+            <i data-lucide="user-check" class="w-4 h-4 text-teal-600"></i>
+            1. Enumerator & Survey Location
+          </h3>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">
+                Enumerator Name <span class="text-rose-500">*</span>
+              </label>
+              <input 
+                type="text" 
+                id="fieldEnumeratorName" 
+                required 
+                placeholder="e.g. Sarah Jenkins"
+                class="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition"
+              >
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">
+                Enumerator ID Code
+              </label>
+              <input 
+                type="text" 
+                id="fieldEnumeratorId" 
+                placeholder="e.g. ENUM-204"
+                class="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition"
+              >
+            </div>
+
+            <div class="sm:col-span-2">
+              <label class="block text-xs font-bold text-slate-700 mb-1">
+                Target Region / Zone <span class="text-rose-500">*</span>
+              </label>
+              <select 
+                id="fieldRegion" 
+                required 
+                class="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition bg-white"
+              >
+                <option value="Lilongwe Rural Sector B">Lilongwe Rural Sector B</option>
+                <option value="Blantyre Central Zone">Blantyre Central Zone</option>
+                <option value="Zomba District Urban">Zomba District Urban</option>
+                <option value="Mzuzu Northern Division">Mzuzu Northern Division</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 2: RESPONDENT DETAILS -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
+          <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wide border-b border-slate-100 pb-2.5 flex items-center gap-2">
+            <i data-lucide="users" class="w-4 h-4 text-teal-600"></i>
+            2. Respondent & Household Profile
+          </h3>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="sm:col-span-2">
+              <label class="block text-xs font-bold text-slate-700 mb-1">
+                Respondent Full Name <span class="text-rose-500">*</span>
+              </label>
+              <input 
+                type="text" 
+                id="fieldRespondentName" 
+                required 
+                placeholder="e.g. Mary Banda"
+                class="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition"
+              >
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">
+                Respondent Gender
+              </label>
+              <select 
+                id="fieldGender" 
+                class="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition bg-white"
+              >
+                <option value="Female">Female</option>
+                <option value="Male">Male</option>
+                <option value="Other">Other / Non-Binary</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">
+                Respondent Age
+              </label>
+              <input 
+                type="number" 
+                id="fieldAge" 
+                min="18" 
+                max="120" 
+                placeholder="e.g. 38"
+                class="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition"
+              >
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">
+                Primary Contact Number
+              </label>
+              <input 
+                type="tel" 
+                id="fieldContact" 
+                placeholder="+265 99 000 0000"
+                class="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition"
+              >
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">
+                Household Total Size (Members)
+              </label>
+              <input 
+                type="number" 
+                id="fieldHouseholdSize" 
+                min="1" 
+                max="30" 
+                value="5"
+                class="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition"
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 3: SURVEY QUESTIONS & MEDIA -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-5">
+          <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wide border-b border-slate-100 pb-2.5 flex items-center gap-2">
+            <i data-lucide="map-pin" class="w-4 h-4 text-teal-600"></i>
+            3. Field Metrics & Geolocation
+          </h3>
+
+          <!-- Water Source -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">
+              Primary Household Water Source <span class="text-rose-500">*</span>
+            </label>
+            <select 
+              id="fieldWaterSource" 
+              required 
+              class="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition bg-white"
+            >
+              <option value="Borehole / Deep Well">Borehole / Deep Well</option>
+              <option value="Piped Tap Water">Piped Tap Water</option>
+              <option value="Public Water Kiosk">Public Water Kiosk</option>
+              <option value="Unprotected Well / Stream">Unprotected Well / Stream</option>
+              <option value="Rainwater Collector">Rainwater Collector</option>
+            </select>
+          </div>
+
+          <!-- Sanitation Rating Buttons -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-2">
+              Sanitation Condition & Service Satisfaction (1 = Very Poor, 5 = Excellent)
+            </label>
+            <div class="grid grid-cols-5 gap-2">
+              <button 
+                type="button" 
+                onclick="setRating(1)" 
+                id="rateBtn-1" 
+                class="rating-btn py-2.5 border rounded-xl font-bold text-sm text-slate-700 hover:bg-slate-100 transition"
+              >1</button>
+              <button 
+                type="button" 
+                onclick="setRating(2)" 
+                id="rateBtn-2" 
+                class="rating-btn py-2.5 border rounded-xl font-bold text-sm text-slate-700 hover:bg-slate-100 transition"
+              >2</button>
+              <button 
+                type="button" 
+                onclick="setRating(3)" 
+                id="rateBtn-3" 
+                class="rating-btn py-2.5 border rounded-xl font-bold text-sm bg-teal-600 text-white border-teal-600 transition"
+              >3</button>
+              <button 
+                type="button" 
+                onclick="setRating(4)" 
+                id="rateBtn-4" 
+                class="rating-btn py-2.5 border rounded-xl font-bold text-sm text-slate-700 hover:bg-slate-100 transition"
+              >4</button>
+              <button 
+                type="button" 
+                onclick="setRating(5)" 
+                id="rateBtn-5" 
+                class="rating-btn py-2.5 border rounded-xl font-bold text-sm text-slate-700 hover:bg-slate-100 transition"
+              >5</button>
+            </div>
+            <input type="hidden" id="fieldRating" value="3">
+          </div>
+
+          <!-- GPS Location Simulator -->
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+            <div class="flex items-center justify-between">
+              <label class="block text-xs font-bold text-slate-700">
+                GPS Coordinate Capture
+              </label>
+              <span class="text-[11px] text-teal-600 font-semibold flex items-center gap-1">
+                <i data-lucide="crosshair" class="w-3 h-3"></i> Auto-Location Ready
+              </span>
+            </div>
+            <div class="flex items-center gap-2">
+              <input 
+                type="text" 
+                id="fieldGps" 
+                readonly 
+                placeholder="Click button to capture coordinates..." 
+                class="flex-1 px-3.5 py-2 text-xs font-mono border border-slate-300 rounded-xl bg-white text-slate-700 outline-none"
+              >
+              <button 
+                type="button" 
+                onclick="captureGpsLocation()" 
+                class="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 transition shadow-sm"
+              >
+                <i data-lucide="navigation" class="w-3.5 h-3.5 text-teal-400"></i> Get GPS
+              </button>
+            </div>
+          </div>
+
+          <!-- Photo Upload Simulator Dropzone -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">
+              Field Site Photo Attachment
+            </label>
+            <div class="border-2 border-dashed border-slate-300 rounded-xl p-4 text-center hover:bg-slate-50 transition cursor-pointer relative" onclick="triggerPhotoUpload()">
+              <input type="file" id="photoInput" accept="image/*" class="hidden" onchange="handlePhotoSelect(event)">
+              <div id="photoPlaceholder" class="space-y-1">
+                <i data-lucide="camera" class="w-8 h-8 text-slate-400 mx-auto"></i>
+                <p class="text-xs font-semibold text-slate-700">Click or tap to simulate photo upload</p>
+                <p class="text-[11px] text-slate-400">JPG, PNG up to 10MB</p>
+              </div>
+              <div id="photoPreviewContainer" class="hidden flex items-center justify-center gap-3">
+                <div class="w-12 h-12 rounded-lg bg-teal-100 flex items-center justify-center text-teal-700 font-bold text-xs">
+                  IMG
+                </div>
+                <div class="text-left">
+                  <p id="photoFileName" class="text-xs font-bold text-slate-800">site_photo.jpg</p>
+                  <p class="text-[11px] text-emerald-600 font-semibold flex items-center gap-1">
+                    <i data-lucide="check-circle-2" class="w-3 h-3"></i> Attached & Encrypted
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Field Notes -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">
+              Additional Observations & Field Notes
+            </label>
+            <textarea 
+              id="fieldNotes" 
+              rows="3" 
+              placeholder="Record any issues, contamination risks, or specific user comments..." 
+              class="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition"
+            ></textarea>
+          </div>
+        </div>
+
+        <!-- Form Footer Controls -->
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
+          <button 
+            type="button" 
+            onclick="saveDraft()" 
+            class="w-full sm:w-auto px-5 py-2.5 border border-slate-300 text-slate-700 hover:bg-slate-100 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition"
+          >
+            <i data-lucide="save" class="w-4 h-4 text-slate-500"></i> Save Draft
+          </button>
+
+          <div class="flex items-center gap-3 w-full sm:w-auto">
+            <button 
+              type="button" 
+              onclick="clearForm()" 
+              class="flex-1 sm:flex-none px-4 py-2.5 text-slate-500 hover:text-slate-800 text-xs font-bold transition"
+            >
+              Clear
+            </button>
+            <button 
+              type="submit" 
+              class="flex-1 sm:flex-none px-6 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold shadow-md flex items-center justify-center gap-2 transition"
+            >
+              <i data-lucide="send" class="w-4 h-4"></i> Submit Record
+            </button>
+          </div>
+        </div>
+
+      </form>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- VIEW 2: ADMIN REVIEW DASHBOARD                            -->
+    <!-- ========================================================= -->
+    <section id="dashboardView" class="hidden space-y-6">
+      
+      <!-- Metrics Overview Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <!-- Total -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Total Submissions</p>
+            <p id="metricTotal" class="text-2xl font-black text-slate-900 mt-1">0</p>
+          </div>
+          <div class="bg-teal-50 p-3 rounded-xl text-teal-600">
+            <i data-lucide="layers" class="w-6 h-6"></i>
+          </div>
+        </div>
+
+        <!-- Pending -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-wider text-amber-600">Pending Audit</p>
+            <p id="metricPending" class="text-2xl font-black text-amber-600 mt-1">0</p>
+          </div>
+          <div class="bg-amber-50 p-3 rounded-xl text-amber-600">
+            <i data-lucide="clock" class="w-6 h-6"></i>
+          </div>
+        </div>
+
+        <!-- Approved -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-wider text-emerald-600">Approved</p>
+            <p id="metricApproved" class="text-2xl font-black text-emerald-600 mt-1">0</p>
+          </div>
+          <div class="bg-emerald-50 p-3 rounded-xl text-emerald-600">
+            <i data-lucide="check-circle-2" class="w-6 h-6"></i>
+          </div>
+        </div>
+
+        <!-- Rejected -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-wider text-rose-600">Rejected</p>
+            <p id="metricRejected" class="text-2xl font-black text-rose-600 mt-1">0</p>
+          </div>
+          <div class="bg-rose-50 p-3 rounded-xl text-rose-600">
+            <i data-lucide="x-circle" class="w-6 h-6"></i>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Controls & Filter Toolbar -->
+      <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+        
+        <!-- Live Search -->
+        <div class="relative w-full md:w-80">
+          <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+          <input 
+            type="text" 
+            id="searchInput" 
+            oninput="renderDashboardTable()" 
+            placeholder="Search ID, respondent, enumerator..."
+            class="w-full pl-9 pr-4 py-2 text-xs font-medium border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none"
+          >
+        </div>
+
+        <!-- Filter Dropdowns & Export Buttons -->
+        <div class="flex flex-wrap items-center gap-3 w-full md:w-auto justify-between md:justify-end">
+          
+          <div class="flex items-center gap-2 text-xs font-bold text-slate-600">
+            <i data-lucide="filter" class="w-3.5 h-3.5 text-slate-400"></i>
+            <span>Status:</span>
+            <select 
+              id="filterStatus" 
+              onchange="renderDashboardTable()" 
+              class="px-2.5 py-1.5 border border-slate-300 rounded-xl text-xs bg-white outline-none focus:ring-2 focus:ring-teal-500 font-semibold"
+            >
+              <option value="All">All Records</option>
+              <option value="Pending">Pending</option>
+              <option value="Approved">Approved</option>
+              <option value="Rejected">Rejected</option>
+            </select>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button 
+              onclick="exportCSV()" 
+              class="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition"
+            >
+              <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5 text-emerald-400"></i> Export CSV
+            </button>
+
+            <button 
+              onclick="exportJSON()" 
+              class="px-3.5 py-2 border border-slate-300 hover:bg-slate-100 text-slate-700 rounded-xl text-xs font-bold flex items-center gap-1.5 transition"
+            >
+              <i data-lucide="download" class="w-3.5 h-3.5 text-slate-500"></i> JSON
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Main Data Table Card -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto custom-scrollbar">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider border-b border-slate-200">
+              <tr>
+                <th class="px-4 py-3.5">Ref ID</th>
+                <th class="px-4 py-3.5">Date / Time</th>
+                <th class="px-4 py-3.5">Respondent</th>
+                <th class="px-4 py-3.5">Enumerator</th>
+                <th class="px-4 py-3.5">Water Source</th>
+                <th class="px-4 py-3.5">Status</th>
+                <th class="px-4 py-3.5 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="submissionsTableBody" class="divide-y divide-slate-100 font-medium">
+              <!-- Dynamically populated via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ========================================================= -->
+  <!-- MODAL: REVIEW & AUDIT DETAIL POPUP                        -->
+  <!-- ========================================================= -->
+  <div id="reviewModal" class="hidden fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in duration-200">
+      
+      <!-- Modal Header -->
+      <div class="px-6 py-4 border-b border-slate-800 bg-slate-900 text-white flex items-center justify-between">
+        <div>
+          <span id="modalRefId" class="text-xs font-mono font-bold text-teal-400">KBO-0000</span>
+          <h3 class="text-base font-bold">Submission Quality Review</h3>
+        </div>
+        <button onclick="closeReviewModal()" class="text-slate-400 hover:text-white transition p-1">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Modal Scrollable Content -->
+      <div class="p-6 overflow-y-auto space-y-5 text-xs custom-scrollbar">
+        
+        <!-- Metadata Row -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+          <div>
+            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Submitted At</p>
+            <p id="modalDate" class="font-semibold text-slate-800 mt-0.5">-</p>
+          </div>
+          <div>
+            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Enumerator</p>
+            <p id="modalEnumerator" class="font-semibold text-slate-800 mt-0.5">-</p>
+          </div>
+          <div>
+            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Status</p>
+            <span id="modalStatusBadge" class="inline-block mt-0.5 px-2 py-0.5 rounded text-[11px] font-bold bg-slate-200 text-slate-800">
+              Pending
+            </span>
+          </div>
+        </div>
+
+        <!-- Field Details -->
+        <div class="space-y-3">
+          <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 pb-1">
+            Form Field Data
+          </h4>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-6">
+            <div>
+              <span class="text-slate-400 font-normal">Respondent:</span>
+              <p id="modalRespondent" class="font-bold text-slate-900">-</p>
+            </div>
+            <div>
+              <span class="text-slate-400 font-normal">Gender & Age:</span>
+              <p id="modalDemographics" class="font-bold text-slate-900">-</p>
+            </div>
+            <div>
+              <span class="text-slate-400 font-normal">Location Zone:</span>
+              <p id="modalLocation" class="font-bold text-slate-900">-</p>
+            </div>
+            <div>
+              <span class="text-slate-400 font-normal">Contact Phone:</span>
+              <p id="modalContact" class="font-bold text-slate-900">-</p>
+            </div>
+            <div>
+              <span class="text-slate-400 font-normal">Water Source:</span>
+              <p id="modalWaterSource" class="font-bold text-slate-900">-</p>
+            </div>
+            <div>
+              <span class="text-slate-400 font-normal">Sanitation Score:</span>
+              <p id="modalRating" class="font-bold text-amber-600">-</p>
+            </div>
+          </div>
+
+          <div class="pt-2">
+            <span class="text-slate-400 font-normal">GPS Location Coordinates:</span>
+            <p id="modalGps" class="font-mono text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg mt-1 inline-block">-</p>
+          </div>
+
+          <div id="modalNotesBox" class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <span class="font-bold text-slate-500">Enumerator Field Notes:</span>
+            <p id="modalNotes" class="text-slate-700 mt-1 italic">-</p>
+          </div>
+        </div>
+
+        <!-- Reviewer Controls Section -->
+        <div class="space-y-3 pt-3 border-t border-slate-200">
+          <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+            <i data-lucide="edit-3" class="w-3.5 h-3.5 text-teal-600"></i> Reviewer Audit Notes
+          </h4>
+          <textarea 
+            id="modalReviewerNotes" 
+            rows="2" 
+            placeholder="Add review observations or verification comments..." 
+            class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none"
+          ></textarea>
+
+          <div class="flex items-center justify-end gap-2 pt-2">
+            <button 
+              onclick="updateSubmissionStatus('Rejected')" 
+              class="px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl font-bold flex items-center gap-1.5 transition"
+            >
+              <i data-lucide="x-circle" class="w-4 h-4"></i> Reject
+            </button>
+            
+            <button 
+              onclick="updateSubmissionStatus('Pending')" 
+              class="px-4 py-2 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-xl font-bold flex items-center gap-1.5 transition"
+            >
+              <i data-lucide="clock" class="w-4 h-4"></i> Mark Pending
+            </button>
+
+            <button 
+              onclick="updateSubmissionStatus('Approved')" 
+              class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold shadow-md flex items-center gap-1.5 transition"
+            >
+              <i data-lucide="check-circle-2" class="w-4 h-4"></i> Approve
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Logic -->
+  <script>
+    // INITIAL MOCK SUBMISSIONS DATA
+    const INITIAL_DATA = [
+      {
+        id: "KBO-9101",
+        submittedAt: "2026-11-07 14:30",
+        enumeratorName: "Sarah Jenkins",
+        enumeratorId: "ENUM-102",
+        region: "Lilongwe Rural Sector B",
+        respondentName: "Chifundo Banda",
+        gender: "Female",
+        age: 34,
+        contact: "+265 99 123 4567",
+        householdSize: 6,
+        waterSource: "Borehole / Deep Well",
+        rating: 4,
+        gps: "-13.9833, 33.7833 (Accurate to 4m)",
+        notes: "Water quality is good, but waiting times exceed 45 minutes during peak hours.",
+        status: "Pending",
+        reviewerNotes: "",
+        hasPhoto: true
+      },
+      {
+        id: "KBO-9102",
+        submittedAt: "2026-11-07 16:05",
+        enumeratorName: "David Phiri",
+        enumeratorId: "ENUM-108",
+        region: "Blantyre Central Zone",
+        respondentName: "Blessings Mwale",
+        gender: "Male",
+        age: 42,
+        contact: "+265 88 456 7890",
+        householdSize: 4,
+        waterSource: "Piped Tap Water",
+        rating: 5,
+        gps: "-15.7861, 35.0058 (Accurate to 3m)",
+        notes: "Tap connected directly to municipal supply. Regular pressure.",
+        status: "Approved",
+        reviewerNotes: "Verified coordinates with district GIS database.",
+        hasPhoto: true
+      },
+      {
+        id: "KBO-9103",
+        submittedAt: "2026-11-08 08:20",
+        enumeratorName: "Grace Tembo",
+        enumeratorId: "ENUM-115",
+        region: "Zomba District Urban",
+        respondentName: "Patrick Chimeza",
+        gender: "Male",
+        age: 51,
+        contact: "+265 99 888 1122",
+        householdSize: 7,
+        waterSource: "Unprotected Well / Stream",
+        rating: 1,
+        gps: "-15.3833, 35.3333 (Accurate to 6m)",
+        notes: "Urgent health hazard. Stream is shared with livestock upstream.",
+        status: "Pending",
+        reviewerNotes: "",
+        hasPhoto: false
+      },
+      {
+        id: "KBO-9104",
+        submittedAt: "2026-11-08 09:12",
+        enumeratorName: "Sarah Jenkins",
+        enumeratorId: "ENUM-102",
+        region: "Lilongwe Rural Sector B",
+        respondentName: "Alice Kaonga",
+        gender: "Female",
+        age: 27,
+        contact: "+265 88 222 3344",
+        householdSize: 3,
+        waterSource: "Public Water Kiosk",
+        rating: 2,
+        gps: "-13.9912, 33.7901 (Accurate to 5m)",
+        notes: "Kiosk operates inconsistently due to fuel generator outages.",
+        status: "Rejected",
+        reviewerNotes: "Duplicate entry submitted by mistake.",
+        hasPhoto: true
+      }
+    ];
+
+    // APPLICATION STATE
+    let submissions = JSON.parse(localStorage.getItem('kobo_data')) || INITIAL_DATA;
+    let activeReviewId = null;
+    let selectedPhotoName = "";
+
+    // Save state to localStorage
+    function persistData() {
+      localStorage.setItem('kobo_data', JSON.stringify(submissions));
+      updateNavigationBadge();
+    }
+
+    // Initialize Lucide Icons
+    document.addEventListener("DOMContentLoaded", () => {
+      lucide.createIcons();
+      updateNavigationBadge();
+      loadDraft();
+      renderDashboardTable();
+    });
+
+    // TOAST NOTIFICATIONS SYSTEM
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      
+      const bgColor = type === 'error' ? 'bg-rose-600' : type === 'info' ? 'bg-sky-600' : 'bg-emerald-600';
+      const icon = type === 'error' ? 'x-circle' : type === 'info' ? 'info' : 'check-circle-2';
+
+      toast.className = `${bgColor} text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2.5 text-xs font-bold transform transition-all duration-300 translate-y-2 opacity-0 pointer-events-auto`;
+      toast.innerHTML = `<i data-lucide="${icon}" class="w-4 h-4"></i> ${message}`;
+
+      container.appendChild(toast);
+      lucide.createIcons();
+
+      setTimeout(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      }, 10);
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    // VIEW SWITCHER (COLLECTION FORM <-> DASHBOARD)
+    function switchView(viewName) {
+      const formView = document.getElementById('formView');
+      const dashboardView = document.getElementById('dashboardView');
+      const navBtnForm = document.getElementById('navBtnForm');
+      const navBtnDashboard = document.getElementById('navBtnDashboard');
+
+      if (viewName === 'form') {
+        formView.classList.remove('hidden');
+        dashboardView.classList.add('hidden');
+        
+        navBtnForm.className = "flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all bg-teal-600 text-white shadow-sm";
+        navBtnDashboard.className = "flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-300 hover:text-white hover:bg-slate-700/50";
+      } else {
+        formView.classList.add('hidden');
+        dashboardView.classList.remove('hidden');
+        
+        navBtnDashboard.className = "flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all bg-teal-600 text-white shadow-sm";
+        navBtnForm.className = "flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-300 hover:text-white hover:bg-slate-700/50";
+        
+        renderDashboardTable();
+      }
+    }
+
+    // RATING SCALE BUTTON CONTROL
+    function setRating(val) {
+      document.getElementById('fieldRating').value = val;
+      for (let i = 1; i <= 5; i++) {
+        const btn = document.getElementById(`rateBtn-${i}`);
+        if (i === val) {
+          btn.className = "rating-btn py-2.5 border rounded-xl font-bold text-sm bg-teal-600 text-white border-teal-600 transition shadow-sm";
+        } else {
+          btn.className = "rating-btn py-2.5 border rounded-xl font-bold text-sm text-slate-700 hover:bg-slate-100 transition";
+        }
+      }
+    }
+
+    // GPS CAPTURE SIMULATOR
+    function captureGpsLocation() {
+      const mockLat = (-13.5 - Math.random() * 2.5).toFixed(4);
+      const mockLng = (33.5 + Math.random() * 2.5).toFixed(4);
+      const accuracy = Math.floor(Math.random() * 5) + 2;
+      const result = `${mockLat}, ${mockLng} (Accurate to ${accuracy}m)`;
+      
+      document.getElementById('fieldGps').value = result;
+      showToast('GPS position acquired successfully!', 'success');
+    }
+
+    // SIMULATED PHOTO UPLOAD HANDLER
+    function triggerPhotoUpload() {
+      document.getElementById('photoInput').click();
+    }
+
+    function handlePhotoSelect(e) {
+      const file = e.target.files[0];
+      if (file) {
+        selectedPhotoName = file.name;
+        document.getElementById('photoPlaceholder').classList.add('hidden');
+        document.getElementById('photoPreviewContainer').classList.remove('hidden');
+        document.getElementById('photoFileName').innerText = file.name;
+        showToast(`Attached file: ${file.name}`, 'info');
+      }
+    }
+
+    // DRAFT SAVE / RESTORE
+    function saveDraft() {
+      const draftObj = {
+        enumeratorName: document.getElementById('fieldEnumeratorName').value,
+        enumeratorId: document.getElementById('fieldEnumeratorId').value,
+        region: document.getElementById('fieldRegion').value,
+        respondentName: document.getElementById('fieldRespondentName').value,
+        gender: document.getElementById('fieldGender').value,
+        age: document.getElementById('fieldAge').value,
+        contact: document.getElementById('fieldContact').value,
+        householdSize: document.getElementById('fieldHouseholdSize').value,
+        waterSource: document.getElementById('fieldWaterSource').value,
+        rating: document.getElementById('fieldRating').value,
+        gps: document.getElementById('fieldGps').value,
+        notes: document.getElementById('fieldNotes').value
+      };
+      localStorage.setItem('kobo_form_draft', JSON.stringify(draftObj));
+      showToast('Form draft saved locally!', 'info');
+    }
+
+    function loadDraft() {
+      const draft = localStorage.getItem('kobo_form_draft');
+      if (draft) {
+        const obj = JSON.parse(draft);
+        document.getElementById('fieldEnumeratorName').value = obj.enumeratorName || '';
+        document.getElementById('fieldEnumeratorId').value = obj.enumeratorId || '';
+        document.getElementById('fieldRegion').value = obj.region || 'Lilongwe Rural Sector B';
+        document.getElementById('fieldRespondentName').value = obj.respondentName || '';
+        document.getElementById('fieldGender').value = obj.gender || 'Female';
+        document.getElementById('fieldAge').value = obj.age || '';
+        document.getElementById('fieldContact').value = obj.contact || '';
+        document.getElementById('fieldHouseholdSize').value = obj.householdSize || 5;
+        document.getElementById('fieldWaterSource').value = obj.waterSource || 'Borehole / Deep Well';
+        document.getElementById('fieldGps').value = obj.gps || '';
+        document.getElementById('fieldNotes').value = obj.notes || '';
+        if (obj.rating) setRating(parseInt(obj.rating));
+      }
+    }
+
+    function clearForm() {
+      document.getElementById('koboSurveyForm').reset();
+      setRating(3);
+      document.getElementById('fieldGps').value = '';
+      selectedPhotoName = '';
+      document.getElementById('photoPlaceholder').classList.remove('hidden');
+      document.getElementById('photoPreviewContainer').classList.add('hidden');
+      localStorage.removeItem('kobo_form_draft');
+      showToast('Form reset to default.', 'info');
+    }
+
+    // SUBMIT SURVEY ENTRY
+    function handleFormSubmit(e) {
+      e.preventDefault();
+
+      const newRecord = {
+        id: `KBO-${Math.floor(1000 + Math.random() * 9000)}`,
+        submittedAt: new Date().toISOString().replace('T', ' ').substring(0, 16),
+        enumeratorName: document.getElementById('fieldEnumeratorName').value,
+        enumeratorId: document.getElementById('fieldEnumeratorId').value || 'N/A',
+        region: document.getElementById('fieldRegion').value,
+        respondentName: document.getElementById('fieldRespondentName').value,
+        gender: document.getElementById('fieldGender').value,
+        age: parseInt(document.getElementById('fieldAge').value) || 25,
+        contact: document.getElementById('fieldContact').value || 'N/A',
+        householdSize: parseInt(document.getElementById('fieldHouseholdSize').value) || 1,
+        waterSource: document.getElementById('fieldWaterSource').value,
+        rating: parseInt(document.getElementById('fieldRating').value),
+        gps: document.getElementById('fieldGps').value || 'Location not tagged',
+        notes: document.getElementById('fieldNotes').value,
+        status: 'Pending',
+        reviewerNotes: '',
+        hasPhoto: selectedPhotoName !== ''
+      };
+
+      submissions.unshift(newRecord);
+      persistData();
+      localStorage.removeItem('kobo_form_draft');
+      clearForm();
+
+      showToast(`Survey Submitted! Reference: ${newRecord.id}`, 'success');
+      
+      // Auto redirect to dashboard view
+      setTimeout(() => {
+        switchView('dashboard');
+      }, 800);
+    }
+
+    // UPDATE NAVBAR BADGE
+    function updateNavigationBadge() {
+      const pendingCount = submissions.filter(s => s.status === 'Pending').length;
+      const badge = document.getElementById('navPendingBadge');
+      badge.innerText = pendingCount;
+    }
+
+    // DASHBOARD METRICS & TABLE RENDER
+    function renderDashboardTable() {
+      const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+      const statusFilter = document.getElementById('filterStatus').value;
+
+      // Filter logic
+      const filtered = submissions.filter(s => {
+        const matchesSearch = 
+          s.id.toLowerCase().includes(searchQuery) ||
+          s.respondentName.toLowerCase().includes(searchQuery) ||
+          s.enumeratorName.toLowerCase().includes(searchQuery) ||
+          s.region.toLowerCase().includes(searchQuery);
+
+        const matchesStatus = statusFilter === 'All' || s.status === statusFilter;
+        return matchesSearch && matchesStatus;
+      });
+
+      // Update Metrics Cards
+      document.getElementById('metricTotal').innerText = submissions.length;
+      document.getElementById('metricPending').innerText = submissions.filter(s => s.status === 'Pending').length;
+      document.getElementById('metricApproved').innerText = submissions.filter(s => s.status === 'Approved').length;
+      document.getElementById('metricRejected').innerText = submissions.filter(s => s.status === 'Rejected').length;
+
+      // Populate Table Body
+      const tbody = document.getElementById('submissionsTableBody');
+      tbody.innerHTML = '';
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colSpan="7" class="text-center py-8 text-slate-400">
+              No survey records matched your search filters.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      filtered.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50/80 transition";
+
+        const statusBadge = 
+          item.status === 'Approved' ? 'bg-emerald-100 text-emerald-800' :
+          item.status === 'Rejected' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800';
+
+        tr.innerHTML = `
+          <td class="px-4 py-3 font-mono font-bold text-teal-700">${item.id}</td>
+          <td class="px-4 py-3 text-slate-500">${item.submittedAt}</td>
+          <td class="px-4 py-3 font-semibold text-slate-900">${item.respondentName}</td>
+          <td class="px-4 py-3 text-slate-600">${item.enumeratorName}</td>
+          <td class="px-4 py-3 text-slate-600">${item.waterSource}</td>
+          <td class="px-4 py-3">
+            <span class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold ${statusBadge}">
+              ${item.status}
+            </span>
+          </td>
+          <td class="px-4 py-3 text-right space-x-1">
+            <button 
+              onclick="openReviewModal('${item.id}')" 
+              class="px-2.5 py-1 bg-teal-50 text-teal-700 hover:bg-teal-100 rounded-lg text-xs font-bold inline-flex items-center gap-1 transition"
+            >
+              <i data-lucide="eye" class="w-3.5 h-3.5"></i> Review
+            </button>
+            <button 
+              onclick="deleteRecord('${item.id}')" 
+              class="p-1 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-slate-100 transition inline-flex"
+              title="Delete Record"
+            >
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      lucide.createIcons();
+    }
+
+    // MODAL AUDIT FUNCTIONS
+    function openReviewModal(id) {
+      const record = submissions.find(s => s.id === id);
+      if (!record) return;
+
+      activeReviewId = id;
+
+      document.getElementById('modalRefId').innerText = record.id;
+      document.getElementById('modalDate').innerText = record.submittedAt;
+      document.getElementById('modalEnumerator').innerText = `${record.enumeratorName} (${record.enumeratorId})`;
+      document.getElementById('modalRespondent').innerText = record.respondentName;
+      document.getElementById('modalDemographics').innerText = `${record.gender}, ${record.age} yrs (${record.householdSize} members)`;
+      document.getElementById('modalLocation').innerText = record.region;
+      document.getElementById('modalContact').innerText = record.contact;
+      document.getElementById('modalWaterSource').innerText = record.waterSource;
+      document.getElementById('modalRating').innerText = `${record.rating} / 5 Stars`;
+      document.getElementById('modalGps').innerText = record.gps;
+      document.getElementById('modalNotes').innerText = record.notes ? `"${record.notes}"` : 'No additional comments provided.';
+      document.getElementById('modalReviewerNotes').value = record.reviewerNotes || '';
+
+      const statusBadge = document.getElementById('modalStatusBadge');
+      statusBadge.innerText = record.status;
+      statusBadge.className = `inline-block mt-0.5 px-2 py-0.5 rounded text-[11px] font-bold ${
+        record.status === 'Approved' ? 'bg-emerald-100 text-emerald-800' :
+        record.status === 'Rejected' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800'
+      }`;
+
+      document.getElementById('reviewModal').classList.remove('hidden');
+    }
+
+    function closeReviewModal() {
+      document.getElementById('reviewModal').classList.add('hidden');
+      activeReviewId = null;
+    }
+
+    function updateSubmissionStatus(newStatus) {
+      if (!activeReviewId) return;
+
+      const record = submissions.find(s => s.id === activeReviewId);
+      if (record) {
+        record.status = newStatus;
+        record.reviewerNotes = document.getElementById('modalReviewerNotes').value;
+        persistData();
+        renderDashboardTable();
+        closeReviewModal();
+        showToast(`Record ${record.id} updated to ${newStatus}`, 'success');
+      }
+    }
+
+    function deleteRecord(id) {
+      if (confirm(`Are you sure you want to delete submission ${id}?`)) {
+        submissions = submissions.filter(s => s.id !== id);
+        persistData();
+        renderDashboardTable();
+        showToast(`Record ${id} deleted`, 'info');
+      }
+    }
+
+    // EXPORT FUNCTIONS (CSV & JSON)
+    function exportCSV() {
+      const headers = ["ID,Submitted Date,Enumerator,Enumerator ID,Region,Respondent,Gender,Age,Contact,Household Size,Water Source,Rating,GPS,Status,Reviewer Notes"];
+      const rows = submissions.map(s => [
+        s.id,
+        `"${s.submittedAt}"`,
+        `"${s.enumeratorName}"`,
+        `"${s.enumeratorId}"`,
+        `"${s.region}"`,
+        `"${s.respondentName}"`,
+        s.gender,
+        s.age,
+        `"${s.contact}"`,
+        s.householdSize,
+        `"${s.waterSource}"`,
+        s.rating,
+        `"${s.gps}"`,
+        s.status,
+        `"${s.reviewerNotes || ''}"`
+      ].join(","));
+
+      const csvContent = "data:text/csv;charset=utf-8," + [headers, ...rows].join("\n");
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `Kobo_Export_${new Date().toISOString().slice(0, 10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast("CSV dataset exported!", "success");
+    }
+
+    function exportJSON() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(submissions, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `Kobo_Export_${new Date().toISOString().slice(0, 10)}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      showToast("JSON dataset exported!", "success");
+    }
+  </script>
+</body>
+</html>
